@@ -62,7 +62,7 @@ class BarChart extends Component {
     .data(this.state.data)
     .enter()
     .append("circle")
-    .attr("r", 2)
+    .attr("r", 4)
     .attr("cx", function(d) { return x(d); })
     .attr("cy", function(d) { return y(3); });
     
@@ -118,7 +118,7 @@ class BarChart extends Component {
         console.log(data); // [{"Hello": "world"}, …]
         
         var parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
-        var dataClean = data.map(function(d){ return(parseTime(d))}).slice(-10)
+        var dataClean = data.map(function(d){ return(parseTime(d))}).slice(-75)
         
         
         that.setState({
