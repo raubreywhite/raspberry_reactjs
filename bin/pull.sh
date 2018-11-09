@@ -1,4 +1,4 @@
 #!/bin/bash
 
-cd /var/www/raspberry_reactjs/
+cd /git/raspberry_reactjs/
 git pull
