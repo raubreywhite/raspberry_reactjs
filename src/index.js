@@ -15,6 +15,7 @@ export default class App extends Component {
     
     return (
             <div>
+            <img src="/camera/image.jpg"/>
             <h2>Hello!!!</h2>
             <p>I am {name}</p>
             </div>
