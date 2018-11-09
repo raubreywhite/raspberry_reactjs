@@ -118,7 +118,7 @@ class BarChart extends Component {
         console.log(data); // [{"Hello": "world"}, …]
         
         var parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
-        var dataClean = data.map(function(d){ return(parseTime(d))})
+        var dataClean = data.map(function(d){ return(parseTime(d))}).slice(-10)
         
         
         that.setState({
