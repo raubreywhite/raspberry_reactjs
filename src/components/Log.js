@@ -130,6 +130,7 @@ class BarChart extends Component {
     var date1 = new Date();
     date1.setMinutes(date1.getMinutes()+5);
     var fullData = this.state.data.concat(this.state.timeNow);
+    //fullData = this.state.data.concat(date1);
     
     x.domain(d3.extent(fullData));
     y.domain([0, 5]);
@@ -147,7 +148,9 @@ class BarChart extends Component {
     .attr("d", lineVertical(this.GetVerticalLineData()));
     
     var u = svg.selectAll("circle")
-    .data(this.state.data)
+    .data(this.state.data, function(d){
+          return d;
+          });
     
     u.enter()
     .merge(u)
