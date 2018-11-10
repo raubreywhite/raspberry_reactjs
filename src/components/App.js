@@ -19,7 +19,7 @@ export default class App extends Component {
             <div>
             <h2>Hello!!!</h2>
             <Log width={750} height={500} />
-            <LiveImage image={"/camera/image.jpg"} interval={1000} />
+            <LiveImage image={"/camera/image.jpg"} interval={30000} />
             <p>I am {name}</p>
             </div>
             );
