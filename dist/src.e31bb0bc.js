@@ -51827,6 +51827,11 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+var x = d3.scaleTime();
+var y = d3.scaleLinear();
+var lineValue = d3.line();
+var lineVertical = d3.line();
+
 var BarChart =
 /*#__PURE__*/
 function (_Component) {
@@ -51838,20 +51843,55 @@ function (_Component) {
     _classCallCheck(this, BarChart);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(BarChart).call(this, props));
-    _this.Graph = _this.Graph.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.GetVerticalLineData = _this.GetVerticalLineData.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.FetchData = _this.FetchData.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.GraphInitialize = _this.GraphInitialize.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.GraphUpdate = _this.GraphUpdate.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     console.log("OK");
     _this.state = {
-      timeNow: new Date()
+      timeNow: new Date(),
+      timer: null
     };
     _this.chartRef = _react.default.createRef();
     return _this;
   }
 
   _createClass(BarChart, [{
-    key: "Graph",
-    value: function Graph() {
-      var fullData = this.state.data.concat(this.state.timeNow);
-      console.log(fullData);
+    key: "GetVerticalLineData",
+    value: function GetVerticalLineData() {
+      return [{
+        xval: this.state.timeNow,
+        yval: 0
+      }, {
+        xval: this.state.timeNow,
+        yval: 5
+      }];
+    }
+  }, {
+    key: "FetchData",
+    value: function FetchData(fn) {
+      var that = this;
+      fetch("/logs/camera.json").then(function (response) {
+        return response.json();
+      }).then(function (data) {
+        //console.log(data); // [{"Hello": "world"}, …]
+        var parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
+        var dataClean = data.map(function (d) {
+          return parseTime(d);
+        }).slice(-75);
+        that.setState({
+          timeNow: new Date(),
+          data: dataClean
+        }, function () {
+          fn();
+        });
+      });
+    }
+  }, {
+    key: "GraphInitialize",
+    value: function GraphInitialize() {
+      var fullData = this.state.data.concat(this.state.timeNow); //console.log(fullData);
+
       var margin = {
         top: 20,
         right: 20,
@@ -51859,83 +51899,92 @@ function (_Component) {
         left: 50
       };
       var width = this.props.width - margin.left - margin.right;
-      var height = this.props.height - margin.top - margin.bottom;
-      var x = d3.scaleTime().range([0, width]).domain(d3.extent(fullData));
-      var y = d3.scaleLinear().range([height, 0]).domain([0, 5]);
+      var height = this.props.height - margin.top - margin.bottom; //var x = d3.scaleTime()
+
+      x.range([0, width]).domain(d3.extent(fullData)); //var y = d3.scaleLinear()
+
+      y.range([height, 0]).domain([0, 5]);
       var svg = d3.select(this.chartRef.current);
       svg.attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom);
       var graph = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")"); // add the x Axis
 
-      graph.append("g").attr("transform", "translate(0," + height + ")").call(d3.axisBottom(x)); // add the y Axis
+      graph.append("g").attr("class", "x axis").attr("transform", "translate(0," + height + ")").call(d3.axisBottom(x)); // add the y Axis
 
-      graph.append("g").attr("transform", "translate(0, 0)").call(d3.axisLeft(y).ticks(3));
-      var valueLine = d3.line().x(function (d) {
+      graph.append("g").attr("class", "y axis").attr("transform", "translate(0, 0)").call(d3.axisLeft(y).ticks(3));
+      lineValue.x(function (d) {
         return x(d);
       }).y(function (d) {
         return y(3);
       });
-      graph.append("path").data([this.state.data]).attr("class", "line").attr("d", valueLine);
-      graph.selectAll("dot").data(this.state.data).enter().append("circle").attr("r", 2).attr("cx", function (d) {
+      lineVertical.x(function (d) {
+        console.log(d);
+        return x(d.xval);
+      }).y(function (d) {
+        return y(d.yval);
+      });
+      graph.append("path").data([this.state.data]).attr("class", "line").attr("data-name", "lineValue").attr("d", lineValue);
+      graph.selectAll("circle").data(this.state.data).enter().append("circle").attr("r", 4).attr("cx", function (d) {
         return x(d);
       }).attr("cy", function (d) {
         return y(3);
       });
-      graph.append("line").attr("x1", x(this.state.timeNow)) //<<== change your code here
-      .attr("y1", y(0)).attr("x2", x(this.state.timeNow)) //<<== and here
-      .attr("y2", y(5)).style("stroke-width", 2).style("stroke", "red").style("fill", "none");
+      graph.append("path").data([this.GetVerticalLineData()]).attr("class", "line").attr("data-name", "lineVertical").attr("d", lineVertical);
+      /* graph.append("path")
+       .data(this.GetVerticalLineData())
+       .attr("class", "line")
+       .attr("d", lineVertical)
+       .style("stroke-width", 2)
+       .style("stroke", "red")
+       .style("fill", "none");*/
+    }
+  }, {
+    key: "GraphUpdate",
+    value: function GraphUpdate() {
+      console.log("UPDATING");
+      var date1 = new Date();
+      date1.setMinutes(date1.getMinutes() + 5);
+      var fullData = this.state.data.concat(this.state.timeNow);
+      x.domain(d3.extent(fullData));
+      y.domain([0, 5]);
+      var svg = d3.select(this.chartRef.current);
       /*
-       const chart = d3.select (this.chartRef.current);
-       const barWidth = 20;
-       const chartHeight = 200;
-       const yScale = d3
-       .scaleLinear()
-       .range ([0, d3.max (dataVals)])
-       .domain ([0, chartHeight]);
-       const bar = chart
-       .selectAll ('g')
-       .data (dataVals)
-       .enter ()
-       .append ('g')
-       .attr ('transform', (value, i) => `translate(0,${i * barWidth})`);
-       bar
-       .append ('rect')
-       .attr ('height', value => yScale (value))
-       .attr ('width', barWidth - 1)
-       .attr ('style', 'fill: steelblue;');
-       bar
-       .append ('text')
-       .attr ('y', value => yScale (value) - 5)
-       .attr ('x', barWidth / 2)
-       .attr ('dy', '.35em')
-       .attr ('style', 'fill: white; font: 14px sans-serif; text-anchor: end;')
-       .text (value => value);
-       */
+      svg.select("[data-name=lineValue]")
+      .transition()
+      .duration(750)
+      .attr("d", lineValue(fullData));
+      */
+
+      svg.select("[data-name=lineVertical]").transition().duration(750).attr("d", lineVertical(this.GetVerticalLineData()));
+      var u = svg.selectAll("circle").data(this.state.data);
+      u.enter().merge(u).transition().duration(750).attr("r", 4).attr("cx", function (d) {
+        return x(d);
+      }).attr("cy", function (d) {
+        return y(3);
+      });
+      svg.select(".x.axis").transition().duration(750).call(d3.axisBottom(x));
     }
   }, {
     key: "componentDidMount",
     value: function componentDidMount() {
-      console.log("1");
       var that = this;
-      fetch("/logs/camera.json").then(function (response) {
-        return response.json();
-      }).then(function (data) {
-        console.log(data); // [{"Hello": "world"}, …]
-
-        var parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
-        var dataClean = data.map(function (d) {
-          return parseTime(d);
-        });
-        that.setState({
-          data: dataClean
-        }, function () {
-          that.Graph();
-        });
+      that.FetchData(that.GraphInitialize);
+      console.log("0");
+      var timer = setInterval(function () {
+        that.FetchData(that.GraphUpdate);
+      }, 5000);
+      this.setState({
+        timer: timer
       });
-      console.log("3");
+      console.log("1");
     }
   }, {
     key: "componentDidUpdate",
     value: function componentDidUpdate() {//this.Graph();
+    }
+  }, {
+    key: "componentWillUnmount",
+    value: function componentWillUnmount() {
+      this.clearInterval(this.state.timer);
     }
   }, {
     key: "render",
@@ -52010,10 +52059,10 @@ function (_Component) {
     key: "render",
     value: function render() {
       var name = this.state.name;
-      return _react.default.createElement("div", null, _react.default.createElement("h2", null, "Hello!!!"), _react.default.createElement(_Camera.default, null), _react.default.createElement(_Log.default, {
+      return _react.default.createElement("div", null, _react.default.createElement("h2", null, "Hello!!!"), _react.default.createElement(_Log.default, {
         width: 750,
         height: 500
-      }), _react.default.createElement("p", null, "I am ", name));
+      }), _react.default.createElement(_Camera.default, null), _react.default.createElement("p", null, "I am ", name));
     }
   }]);
 
@@ -52139,7 +52188,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58855" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63162" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);

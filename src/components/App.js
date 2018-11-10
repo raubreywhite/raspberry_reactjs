@@ -17,8 +17,8 @@ export default class App extends Component {
     return (
             <div>
             <h2>Hello!!!</h2>
-            <Camera/>
             <Log width={750} height={500} />
+            <Camera/>
             <p>I am {name}</p>
             </div>
             );
