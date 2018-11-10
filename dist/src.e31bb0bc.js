@@ -24044,7 +24044,107 @@ function (_Component) {
 }(_react.Component);
 
 exports.default = App;
-},{"react":"../node_modules/react/index.js","react-dom":"../node_modules/react-dom/index.js"}],"../node_modules/d3/dist/package.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","react-dom":"../node_modules/react-dom/index.js"}],"components/LiveImage.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireWildcard(require("react"));
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+var LiveImage =
+/*#__PURE__*/
+function (_React$Component) {
+  _inherits(LiveImage, _React$Component);
+
+  function LiveImage(props) {
+    var _this;
+
+    _classCallCheck(this, LiveImage);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(LiveImage).call(this, props));
+
+    _this.loadImage = function () {
+      var component = _assertThisInitialized(_assertThisInitialized(_this));
+
+      var img = new Image();
+      img.crossOrigin = "Anonymous";
+
+      img.onload = function () {
+        var canvas = document.createElement("canvas");
+        canvas.width = this.width;
+        canvas.height = this.height;
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(this, 0, 0);
+        var dataURL = canvas.toDataURL("image/png");
+        component.setState({
+          liveImage: dataURL
+        });
+      };
+
+      img.src = "".concat(_this.props.image, "?").concat(new Date().getTime());
+
+      _this.setState({
+        loadingImage: img
+      });
+    };
+
+    _this.state = {
+      loadingImage: null,
+      liveImage: null
+    };
+    return _this;
+  }
+
+  _createClass(LiveImage, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      this.loadImage();
+      this.interval = setInterval(this.loadImage, this.props.interval);
+    }
+  }, {
+    key: "componentWillUnmount",
+    value: function componentWillUnmount() {
+      clearInterval(this.interval);
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      return _react.default.createElement("img", _extends({
+        src: this.state.liveImage
+      }, this.props));
+    }
+  }]);
+
+  return LiveImage;
+}(_react.default.Component);
+
+exports.default = LiveImage;
+},{"react":"../node_modules/react/index.js"}],"../node_modules/d3/dist/package.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -51906,7 +52006,7 @@ function (_Component) {
       y.range([height, 0]).domain([0, 5]);
       var svg = d3.select(this.chartRef.current);
       svg.attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom);
-      var graph = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")"); // add the x Axis
+      var graph = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")").attr("data-name", "graph"); // add the x Axis
 
       graph.append("g").attr("class", "x axis").attr("transform", "translate(0," + height + ")").call(d3.axisBottom(x)); // add the y Axis
 
@@ -51943,7 +52043,8 @@ function (_Component) {
       console.log("UPDATING");
       var date1 = new Date();
       date1.setMinutes(date1.getMinutes() + 5);
-      var fullData = this.state.data.concat(this.state.timeNow);
+      var fullData = this.state.data.concat(this.state.timeNow); //fullData = this.state.data.concat(date1);
+
       x.domain(d3.extent(fullData));
       y.domain([0, 5]);
       var svg = d3.select(this.chartRef.current);
@@ -51955,12 +52056,19 @@ function (_Component) {
       */
 
       svg.select("[data-name=lineVertical]").transition().duration(750).attr("d", lineVertical(this.GetVerticalLineData()));
-      var u = svg.selectAll("circle").data(this.state.data);
-      u.enter().merge(u).transition().duration(750).attr("r", 4).attr("cx", function (d) {
+      var u = svg.select("[data-name=graph]").selectAll("circle").data(this.state.data, function (d) {
+        return d;
+      });
+      u.enter().append("circle").attr("r", 4).attr("cx", function (d) {
+        return x(d);
+      }).attr("cy", function (d) {
+        return y(3);
+      }).merge(u).transition().duration(750).attr("r", 4).attr("cx", function (d) {
         return x(d);
       }).attr("cy", function (d) {
         return y(3);
       });
+      u.exit().remove();
       svg.select(".x.axis").transition().duration(750).call(d3.axisBottom(x));
     }
   }, {
@@ -52014,6 +52122,8 @@ var _react = _interopRequireWildcard(require("react"));
 
 var _Camera = _interopRequireDefault(require("./Camera.js"));
 
+var _LiveImage = _interopRequireDefault(require("./LiveImage.js"));
+
 var _Log = _interopRequireDefault(require("./Log.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -52062,7 +52172,10 @@ function (_Component) {
       return _react.default.createElement("div", null, _react.default.createElement("h2", null, "Hello!!!"), _react.default.createElement(_Log.default, {
         width: 750,
         height: 500
-      }), _react.default.createElement(_Camera.default, null), _react.default.createElement("p", null, "I am ", name));
+      }), _react.default.createElement(_LiveImage.default, {
+        image: "/camera/image.jpg",
+        interval: 1000
+      }), _react.default.createElement("p", null, "I am ", name));
     }
   }]);
 
@@ -52070,7 +52183,7 @@ function (_Component) {
 }(_react.Component);
 
 exports.default = App;
-},{"react":"../node_modules/react/index.js","./Camera.js":"components/Camera.js","./Log.js":"components/Log.js"}],"../node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","./Camera.js":"components/Camera.js","./LiveImage.js":"components/LiveImage.js","./Log.js":"components/Log.js"}],"../node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
 var bundleURL = null;
 
 function getBundleURLCached() {
@@ -52188,7 +52301,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63162" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65205" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);

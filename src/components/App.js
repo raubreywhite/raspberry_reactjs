@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Camera from './Camera.js';
+import LiveImage from './LiveImage.js';
 import Log from './Log.js';
 
 export default class App extends Component {
@@ -18,7 +19,7 @@ export default class App extends Component {
             <div>
             <h2>Hello!!!</h2>
             <Log width={750} height={500} />
-            <Camera/>
+            <LiveImage image={"/camera/image.jpg"} interval={1000} />
             <p>I am {name}</p>
             </div>
             );
