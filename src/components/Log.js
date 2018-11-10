@@ -71,7 +71,8 @@ class BarChart extends Component {
     svg.attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom);
     var graph = svg.append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    .attr("data-name","graph");
     
     // add the x Axis
     graph.append("g")
@@ -147,7 +148,7 @@ class BarChart extends Component {
     .duration(750)
     .attr("d", lineVertical(this.GetVerticalLineData()));
     
-    var u = svg.selectAll("circle")
+    var u = svg.select("[data-name=graph]").selectAll("circle")
     .data(this.state.data, function(d){
           return d;
           });
