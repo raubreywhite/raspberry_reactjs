@@ -153,12 +153,15 @@ class BarChart extends Component {
           });
     
     u.enter()
+    .append("circle")
     .merge(u)
     .transition()
     .duration(750)
     .attr("r", 4)
     .attr("cx", function(d) { return x(d); })
     .attr("cy", function(d) { return y(3); });
+    
+    u.exit().remove();
     
     svg.select(".x.axis")
     .transition()
