@@ -26,7 +26,7 @@ class BarChart extends Component {
   
   GetVerticalLineData(){
     return([{xval: this.state.timeNow, yval:5.5},
-            {xval: this.state.timeNow, yval:6.5}]);
+            {xval: this.state.timeNow, yval:6.0}]);
   }
   
   FetchData(fn){
@@ -58,7 +58,7 @@ class BarChart extends Component {
     
     var fullData = this.state.data.concat(
                                           {time: this.state.timeNow,
-                                          value: 6});
+                                          value: 5.75});
     //console.log(fullData);
     
     var margin = {top: 20, right: 20, bottom: 30, left: 50};
@@ -75,10 +75,9 @@ class BarChart extends Component {
     var yDom = d3.extent(fullData.map(function(d){
                                      return(d.value)
                                       }));
-    yDom[0]=yDom[0]-0.5;
-    yDom[1]=yDom[1]+0.5;
-    y.range([height, 0])
-    .domain(yDom);
+    yDom[0]=yDom[0]-0.25;
+    yDom[1]=yDom[1]+0.25;
+    y.domain(yDom);
     
     const svg = d3.select(this.chartRef.current);
     svg.attr("width", width + margin.left + margin.right)
@@ -145,7 +144,7 @@ class BarChart extends Component {
     date1.setMinutes(date1.getMinutes()+5);
     var fullData = this.state.data.concat(
                                           {time: this.state.timeNow,
-                                          value: 6});
+                                          value: 5.75});
     //fullData = this.state.data.concat(date1);
     
     x.domain(d3.extent(fullData.map(function(d){
@@ -155,8 +154,8 @@ class BarChart extends Component {
     var yDom = d3.extent(fullData.map(function(d){
                                       return(d.value)
                                       }));
-    yDom[0]=yDom[0]-0.5;
-    yDom[1]=yDom[1]+0.5;
+    yDom[0]=yDom[0]-0.25;
+    yDom[1]=yDom[1]+0.25;
     console.log(yDom);
     y.range([height, 0])
     .domain(yDom);
