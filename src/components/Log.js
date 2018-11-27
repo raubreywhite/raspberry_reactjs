@@ -58,7 +58,7 @@ class BarChart extends Component {
     
     var fullData = this.state.data.concat(
                                           {time: this.state.timeNow,
-                                          value: 3});
+                                          value: 6});
     //console.log(fullData);
     
     var margin = {top: 20, right: 20, bottom: 30, left: 50};
@@ -145,7 +145,7 @@ class BarChart extends Component {
     date1.setMinutes(date1.getMinutes()+5);
     var fullData = this.state.data.concat(
                                           {time: this.state.timeNow,
-                                          value: 3});
+                                          value: 6});
     //fullData = this.state.data.concat(date1);
     
     x.domain(d3.extent(fullData.map(function(d){
@@ -157,6 +157,7 @@ class BarChart extends Component {
                                       }));
     yDom[0]=yDom[0]-0.5;
     yDom[1]=yDom[1]+0.5;
+    console.log(yDom);
     y.range([height, 0])
     .domain(yDom);
     
