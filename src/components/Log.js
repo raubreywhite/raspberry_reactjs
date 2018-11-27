@@ -77,7 +77,8 @@ class BarChart extends Component {
                                       }));
     yDom[0]=yDom[0]-0.25;
     yDom[1]=yDom[1]+0.25;
-    y.domain(yDom);
+    y.range([height, 0])
+    .domain(yDom);
     
     const svg = d3.select(this.chartRef.current);
     svg.attr("width", width + margin.left + margin.right)
@@ -157,8 +158,7 @@ class BarChart extends Component {
     yDom[0]=yDom[0]-0.25;
     yDom[1]=yDom[1]+0.25;
     console.log(yDom);
-    y.range([height, 0])
-    .domain(yDom);
+    y.domain(yDom);
     
     const svg = d3.select(this.chartRef.current);
     /*
