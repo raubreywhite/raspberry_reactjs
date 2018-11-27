@@ -18,8 +18,8 @@ export default class App extends Component {
     return (
             <div>
             <h2>Hello!!!</h2>
-            <LiveImage image={"/camera/image.jpg"} interval={10*60*1000} />
             <Log width={750} height={300} />
+            <LiveImage image={"/camera/image.jpg"} interval={10*60*1000} />
             <p>I am {name}</p>
             </div>
             );

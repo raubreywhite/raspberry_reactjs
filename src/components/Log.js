@@ -25,21 +25,25 @@ class BarChart extends Component {
   }
   
   GetVerticalLineData(){
-    return([{xval: this.state.timeNow, yval:0},
-            {xval: this.state.timeNow, yval:5}]);
+    return([{xval: this.state.timeNow, yval:4},
+            {xval: this.state.timeNow, yval:9}]);
   }
   
   FetchData(fn){
     var that = this;
-    fetch("/logs/camera.json").
+    fetch("/logs/ph.json").
     then((response) => {
          return response.json()
          }).then((data) => {
-                 //console.log(data); // [{"Hello": "world"}, …]
+                 console.log(data); // [{"Hello": "world"}, …]
                  
                  var parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
-                 var dataClean = data.map(function(d){ return(parseTime(d))}).slice(-75)
-                 
+                 var dataClean = data.map(function(d){ return(
+                                                              {time: parseTime(d.time),
+                                                              value: d.value
+                                                              }
+                                                              )}).slice(-75)
+                 console.log(dataClean); // [{"Hello": "world"}, …]
                  
                  that.setState({
                                timeNow: new Date(),
@@ -52,7 +56,9 @@ class BarChart extends Component {
   
   GraphInitialize(){
     
-    var fullData = this.state.data.concat(this.state.timeNow);
+    var fullData = this.state.data.concat(
+                                          {time: this.state.timeNow,
+                                          value: 3});
     //console.log(fullData);
     
     var margin = {top: 20, right: 20, bottom: 30, left: 50};
@@ -61,11 +67,13 @@ class BarChart extends Component {
     
     //var x = d3.scaleTime()
     x.range([0, width])
-    .domain(d3.extent(fullData));
+    .domain(d3.extent(fullData.map(function(d){
+                                   return(d.time)
+                                   })));
     
     //var y = d3.scaleLinear()
     y.range([height, 0])
-    .domain([0, 5]);
+    .domain([4, 9]);
     
     const svg = d3.select(this.chartRef.current);
     svg.attr("width", width + margin.left + margin.right)
@@ -84,11 +92,11 @@ class BarChart extends Component {
     graph.append("g")
     .attr("class","y axis")
     .attr("transform", "translate(0, 0)")
-    .call(d3.axisLeft(y).ticks(3));
+    .call(d3.axisLeft(y).ticks(5));
     
     lineValue
-    .x(function(d) { return x(d);})
-    .y(function(d) {return y(3);});
+    .x(function(d) { return x(d.time);})
+    .y(function(d) {return y(d.value);});
     
     lineVertical
     .x(function(d) { console.log(d); return x(d.xval);})
@@ -105,8 +113,8 @@ class BarChart extends Component {
     .enter()
     .append("circle")
     .attr("r", 4)
-    .attr("cx", function(d) { return x(d); })
-    .attr("cy", function(d) { return y(3); });
+    .attr("cx", function(d) { return x(d.time); })
+    .attr("cy", function(d) { return y(d.value); });
     
     graph.append("path")
     .data([this.GetVerticalLineData()])
@@ -130,11 +138,15 @@ class BarChart extends Component {
     console.log("UPDATING")
     var date1 = new Date();
     date1.setMinutes(date1.getMinutes()+5);
-    var fullData = this.state.data.concat(this.state.timeNow);
+    var fullData = this.state.data.concat(
+                                          {time: this.state.timeNow,
+                                          value: 3});
     //fullData = this.state.data.concat(date1);
     
-    x.domain(d3.extent(fullData));
-    y.domain([0, 5]);
+    x.domain(d3.extent(fullData.map(function(d){
+                                   return(d.time)
+                                   })));
+    //y.domain([0, 5]);
     
     const svg = d3.select(this.chartRef.current);
     /*
@@ -156,14 +168,14 @@ class BarChart extends Component {
     u.enter()
     .append("circle")
     .attr("r", 4)
-    .attr("cx", function(d) { return x(d); })
-    .attr("cy", function(d) { return y(3); })
+    .attr("cx", function(d) { return x(d.time); })
+    .attr("cy", function(d) { return y(d.value); })
     .merge(u)
     .transition()
     .duration(750)
     .attr("r", 4)
-    .attr("cx", function(d) { return x(d); })
-    .attr("cy", function(d) { return y(3); });
+    .attr("cx", function(d) { return x(d.time); })
+    .attr("cy", function(d) { return y(d.value); });
     
     u.exit().remove();
     

@@ -24100,7 +24100,7 @@ function (_React$Component) {
         canvas.height = this.height;
         var ctx = canvas.getContext("2d");
         ctx.drawImage(this, 0, 0);
-        var dataURL = canvas.toDataURL("image/png");
+        var dataURL = canvas.toDataURL("image/jpeg", 1.0);
         component.setState({
           liveImage: dataURL
         });
@@ -51961,24 +51961,30 @@ function (_Component) {
     value: function GetVerticalLineData() {
       return [{
         xval: this.state.timeNow,
-        yval: 0
+        yval: 4
       }, {
         xval: this.state.timeNow,
-        yval: 5
+        yval: 9
       }];
     }
   }, {
     key: "FetchData",
     value: function FetchData(fn) {
       var that = this;
-      fetch("/logs/camera.json").then(function (response) {
+      fetch("/logs/ph.json").then(function (response) {
         return response.json();
       }).then(function (data) {
-        //console.log(data); // [{"Hello": "world"}, …]
+        console.log(data); // [{"Hello": "world"}, …]
+
         var parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
         var dataClean = data.map(function (d) {
-          return parseTime(d);
+          return {
+            time: parseTime(d.time),
+            value: d.value
+          };
         }).slice(-75);
+        console.log(dataClean); // [{"Hello": "world"}, …]
+
         that.setState({
           timeNow: new Date(),
           data: dataClean
@@ -51990,7 +51996,10 @@ function (_Component) {
   }, {
     key: "GraphInitialize",
     value: function GraphInitialize() {
-      var fullData = this.state.data.concat(this.state.timeNow); //console.log(fullData);
+      var fullData = this.state.data.concat({
+        time: this.state.timeNow,
+        value: 3
+      }); //console.log(fullData);
 
       var margin = {
         top: 20,
@@ -52001,20 +52010,22 @@ function (_Component) {
       var width = this.props.width - margin.left - margin.right;
       var height = this.props.height - margin.top - margin.bottom; //var x = d3.scaleTime()
 
-      x.range([0, width]).domain(d3.extent(fullData)); //var y = d3.scaleLinear()
+      x.range([0, width]).domain(d3.extent(fullData.map(function (d) {
+        return d.time;
+      }))); //var y = d3.scaleLinear()
 
-      y.range([height, 0]).domain([0, 5]);
+      y.range([height, 0]).domain([4, 9]);
       var svg = d3.select(this.chartRef.current);
       svg.attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom);
       var graph = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")").attr("data-name", "graph"); // add the x Axis
 
       graph.append("g").attr("class", "x axis").attr("transform", "translate(0," + height + ")").call(d3.axisBottom(x)); // add the y Axis
 
-      graph.append("g").attr("class", "y axis").attr("transform", "translate(0, 0)").call(d3.axisLeft(y).ticks(3));
+      graph.append("g").attr("class", "y axis").attr("transform", "translate(0, 0)").call(d3.axisLeft(y).ticks(5));
       lineValue.x(function (d) {
-        return x(d);
+        return x(d.time);
       }).y(function (d) {
-        return y(3);
+        return y(d.value);
       });
       lineVertical.x(function (d) {
         console.log(d);
@@ -52024,9 +52035,9 @@ function (_Component) {
       });
       graph.append("path").data([this.state.data]).attr("class", "line").attr("data-name", "lineValue").attr("d", lineValue);
       graph.selectAll("circle").data(this.state.data).enter().append("circle").attr("r", 4).attr("cx", function (d) {
-        return x(d);
+        return x(d.time);
       }).attr("cy", function (d) {
-        return y(3);
+        return y(d.value);
       });
       graph.append("path").data([this.GetVerticalLineData()]).attr("class", "line").attr("data-name", "lineVertical").attr("d", lineVertical);
       /* graph.append("path")
@@ -52043,10 +52054,15 @@ function (_Component) {
       console.log("UPDATING");
       var date1 = new Date();
       date1.setMinutes(date1.getMinutes() + 5);
-      var fullData = this.state.data.concat(this.state.timeNow); //fullData = this.state.data.concat(date1);
+      var fullData = this.state.data.concat({
+        time: this.state.timeNow,
+        value: 3
+      }); //fullData = this.state.data.concat(date1);
 
-      x.domain(d3.extent(fullData));
-      y.domain([0, 5]);
+      x.domain(d3.extent(fullData.map(function (d) {
+        return d.time;
+      }))); //y.domain([0, 5]);
+
       var svg = d3.select(this.chartRef.current);
       /*
       svg.select("[data-name=lineValue]")
@@ -52060,13 +52076,13 @@ function (_Component) {
         return d;
       });
       u.enter().append("circle").attr("r", 4).attr("cx", function (d) {
-        return x(d);
+        return x(d.time);
       }).attr("cy", function (d) {
-        return y(3);
+        return y(d.value);
       }).merge(u).transition().duration(750).attr("r", 4).attr("cx", function (d) {
-        return x(d);
+        return x(d.time);
       }).attr("cy", function (d) {
-        return y(3);
+        return y(d.value);
       });
       u.exit().remove();
       svg.select(".x.axis").transition().duration(750).call(d3.axisBottom(x));
@@ -52171,10 +52187,10 @@ function (_Component) {
       var name = this.state.name;
       return _react.default.createElement("div", null, _react.default.createElement("h2", null, "Hello!!!"), _react.default.createElement(_Log.default, {
         width: 750,
-        height: 500
+        height: 300
       }), _react.default.createElement(_LiveImage.default, {
         image: "/camera/image.jpg",
-        interval: 1000
+        interval: 10 * 60 * 1000
       }), _react.default.createElement("p", null, "I am ", name));
     }
   }]);
@@ -52301,7 +52317,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65205" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51282" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);

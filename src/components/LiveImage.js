@@ -17,7 +17,7 @@ export default class LiveImage extends React.Component {
         var ctx = canvas.getContext("2d");
         ctx.drawImage(this, 0, 0);
         
-        var dataURL = canvas.toDataURL("image/png");
+        var dataURL = canvas.toDataURL("image/jpeg", 1.0);
         component.setState({liveImage: dataURL});
       };
       
