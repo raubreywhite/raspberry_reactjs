@@ -25,8 +25,8 @@ class BarChart extends Component {
   }
   
   GetVerticalLineData(){
-    return([{xval: this.state.timeNow, yval:4},
-            {xval: this.state.timeNow, yval:9}]);
+    return([{xval: this.state.timeNow, yval:5.5},
+            {xval: this.state.timeNow, yval:6.5}]);
   }
   
   FetchData(fn){
@@ -72,10 +72,13 @@ class BarChart extends Component {
                                    })));
     
     //var y = d3.scaleLinear()
+    var yDom = d3.extent(fullData.map(function(d){
+                                     return(d.value)
+                                      }));
+    yDom[0]=yDom[0]-0.5;
+    yDom[1]=yDom[1]+0.5;
     y.range([height, 0])
-    .domain(d3.extent(fullData.map(function(d){
-                                   return(d.value)
-                                   })));
+    .domain(yDom);
     
     const svg = d3.select(this.chartRef.current);
     svg.attr("width", width + margin.left + margin.right)
@@ -149,9 +152,13 @@ class BarChart extends Component {
                                    return(d.time)
                                    })));
     
-    y.domain(d3.extent(fullData.map(function(d){
-                                   return(d.value)
-                                   })));
+    var yDom = d3.extent(fullData.map(function(d){
+                                      return(d.value)
+                                      }));
+    yDom[0]=yDom[0]-0.5;
+    yDom[1]=yDom[1]+0.5;
+    y.range([height, 0])
+    .domain(yDom);
     
     const svg = d3.select(this.chartRef.current);
     /*
