@@ -73,7 +73,9 @@ class BarChart extends Component {
     
     //var y = d3.scaleLinear()
     y.range([height, 0])
-    .domain([4, 9]);
+    .domain(d3.extent(fullData.map(function(d){
+                                   return(d.value)
+                                   })));
     
     const svg = d3.select(this.chartRef.current);
     svg.attr("width", width + margin.left + margin.right)
@@ -112,7 +114,7 @@ class BarChart extends Component {
     .data(this.state.data)
     .enter()
     .append("circle")
-    .attr("r", 4)
+    .attr("r", 3)
     .attr("cx", function(d) { return x(d.time); })
     .attr("cy", function(d) { return y(d.value); });
     
@@ -146,7 +148,10 @@ class BarChart extends Component {
     x.domain(d3.extent(fullData.map(function(d){
                                    return(d.time)
                                    })));
-    //y.domain([0, 5]);
+    
+    y.domain(d3.extent(fullData.map(function(d){
+                                   return(d.value)
+                                   })));
     
     const svg = d3.select(this.chartRef.current);
     /*
@@ -167,13 +172,13 @@ class BarChart extends Component {
     
     u.enter()
     .append("circle")
-    .attr("r", 4)
+    .attr("r", 3)
     .attr("cx", function(d) { return x(d.time); })
     .attr("cy", function(d) { return y(d.value); })
     .merge(u)
     .transition()
     .duration(750)
-    .attr("r", 4)
+    .attr("r", 3)
     .attr("cx", function(d) { return x(d.time); })
     .attr("cy", function(d) { return y(d.value); });
     
