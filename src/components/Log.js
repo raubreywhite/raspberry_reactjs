@@ -107,12 +107,13 @@ class BarChart extends Component {
     .x(function(d) { console.log(d); return x(d.xval);})
     .y(function(d) {return y(d.yval);});
     
+    /*
     graph.append("path")
     .data([this.state.data])
     .attr("class", "line")
     .attr("data-name", "lineValue")
     .attr("d", lineValue);
-    
+    */
     graph.selectAll("circle")
     .data(this.state.data)
     .enter()
