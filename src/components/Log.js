@@ -42,7 +42,7 @@ class BarChart extends Component {
                                                               {time: parseTime(d.time),
                                                               value: d.value
                                                               }
-                                                              )}).slice(-480)
+                                                              )}).slice(that.props.datapoints)
                  console.log(dataClean); // [{"Hello": "world"}, …]
                  
                  that.setState({
