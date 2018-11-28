@@ -42,7 +42,7 @@ class BarChart extends Component {
                                                               {time: parseTime(d.time),
                                                               value: d.value
                                                               }
-                                                              )}).slice(-150)
+                                                              )}).slice(-240)
                  console.log(dataClean); // [{"Hello": "world"}, …]
                  
                  that.setState({
