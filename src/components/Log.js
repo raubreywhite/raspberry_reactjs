@@ -42,7 +42,7 @@ class BarChart extends Component {
                                                               {time: parseTime(d.time),
                                                               value: d.value
                                                               }
-                                                              )}).slice(-240)
+                                                              )}).slice(-480)
                  console.log(dataClean); // [{"Hello": "world"}, …]
                  
                  that.setState({
@@ -117,7 +117,7 @@ class BarChart extends Component {
     .data(this.state.data)
     .enter()
     .append("circle")
-    .attr("r", 3)
+    .attr("r", 1)
     .attr("cx", function(d) { return x(d.time); })
     .attr("cy", function(d) { return y(d.value); });
     
@@ -179,13 +179,13 @@ class BarChart extends Component {
     
     u.enter()
     .append("circle")
-    .attr("r", 3)
+    .attr("r", 1)
     .attr("cx", function(d) { return x(d.time); })
     .attr("cy", function(d) { return y(d.value); })
     .merge(u)
     .transition()
     .duration(750)
-    .attr("r", 3)
+    .attr("r", 1)
     .attr("cx", function(d) { return x(d.time); })
     .attr("cy", function(d) { return y(d.value); });
     
