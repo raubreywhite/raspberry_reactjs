@@ -22,6 +22,8 @@ export default class App extends Component {
             <br/>
             <Log width={800} height={300} datapoints={-480} />
             <br/>
+            <Log width={800} height={300} datapoints={-2880} />
+            <br/>
             <LiveImage image={"/camera/image.jpg"} interval={10*60*1000} />
             <p>I am {name}</p>
             </div>
