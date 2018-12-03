@@ -17,7 +17,7 @@ export default class App extends Component {
     
     return (
             <div>
-            <h2>1L water, 250ml acid!!!</h2>
+            <h2>1.750L water, 250ml acid!!!</h2>
             <p>pH Short</p>
             <Log width={800} height={300} datapoints={-720} dataurl={"/logs/ph_short.json"} />
             <br/>
@@ -26,6 +26,9 @@ export default class App extends Component {
             <br/>
             <p>pump run</p>
             <Log width={800} height={300} datapoints={-480} dataurl={"/logs/pump_run.json"}  />
+            <br/>
+            <p>pump</p>
+            <Log width={800} height={300} datapoints={-48} dataurl={"/logs/pump.json"}  />
             <br/>
             <p>ph very long</p>
             <Log width={800} height={300} datapoints={-5760} dataurl={"/logs/ph.json"}  />
