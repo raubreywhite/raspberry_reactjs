@@ -19,7 +19,7 @@ export default class App extends Component {
             <div>
             <h2>1L water, 250ml acid!!!</h2>
             <p>pH Short</p>
-            <Log width={800} height={300} datapoints={-60} dataurl={"/logs/ph_short.json"} />
+            <Log width={800} height={300} datapoints={-720} dataurl={"/logs/ph_short.json"} />
             <br/>
             <p>pH long</p>
             <Log width={800} height={300} datapoints={-480} dataurl={"/logs/ph.json"} />
