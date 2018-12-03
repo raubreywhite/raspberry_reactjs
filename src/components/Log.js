@@ -95,9 +95,13 @@ class BarChart extends Component {
     
     // add the y Axis
     graph.append("g")
-    .attr("class","y axis")
+    .attr("class","y axis left")
     .attr("transform", "translate(0, 0)")
-    .call(d3.axisLeft(y).ticks(5))
+    .call(d3.axisLeft(y).ticks(5));
+    
+    graph.append("g")
+    .attr("class","y axis right")
+    .attr("transform", "translate(" + width + ",0)")
     .call(d3.axisRight(y).ticks(5));
     
     lineValue
@@ -198,13 +202,15 @@ class BarChart extends Component {
     .duration(750)
     .call(d3.axisBottom(x));
     
-    svg.select(".y.axis")
+    svg.select(".y.axis.left")
     .transition()
     .duration(750)
-    .call(d3.axisLeft(y))
+    .call(d3.axisLeft(y));
+    
+    svg.select(".y.axis.right")
+    .transition()
+    .duration(750)
     .call(d3.axisRight(y));
-    
-    
     
   }
   
