@@ -61,7 +61,7 @@ class BarChart extends Component {
                                           value: 5.75});
     //console.log(fullData);
     
-    var margin = {top: 20, right: 20, bottom: 30, left: 50};
+    var margin = {top: 20, right: 50, bottom: 30, left: 50};
     const width = this.props.width - margin.left - margin.right;
     const height = this.props.height - margin.top - margin.bottom;
     
