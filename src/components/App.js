@@ -17,7 +17,7 @@ export default class App extends Component {
     
     return (
             <div>
-            <h2>Hello!!!</h2>
+            <h2>1L water, 250ml acid!!!</h2>
             <Log width={800} height={300} datapoints={-60} />
             <br/>
             <Log width={800} height={300} datapoints={-480} />
