@@ -18,11 +18,17 @@ export default class App extends Component {
     return (
             <div>
             <h2>1L water, 250ml acid!!!</h2>
-            <Log width={800} height={300} datapoints={-60} />
+            <p>pH Short</p>
+            <Log width={800} height={300} datapoints={-60} dataurl={"/logs/ph_short.json"} />
             <br/>
-            <Log width={800} height={300} datapoints={-480} />
+            <p>pH long</p>
+            <Log width={800} height={300} datapoints={-480} dataurl={"/logs/ph.json"} />
             <br/>
-            <Log width={800} height={300} datapoints={-5760} />
+            <p>pump run</p>
+            <Log width={800} height={300} datapoints={-480} dataurl={"/logs/pump_run.json"}  />
+            <br/>
+            <p>ph very long</p>
+            <Log width={800} height={300} datapoints={-5760} dataurl={"/logs/ph.json"}  />
             <br/>
             
             <p>I am {name}</p>

@@ -31,7 +31,7 @@ class BarChart extends Component {
   
   FetchData(fn){
     var that = this;
-    fetch("/logs/ph.json").
+    fetch(this.props.dataurl).
     then((response) => {
          return response.json()
          }).then((data) => {
