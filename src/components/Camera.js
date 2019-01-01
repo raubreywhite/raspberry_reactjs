@@ -12,7 +12,7 @@ export default class App extends Component {
   render() {
     return (
             <div>
-            <img src="/camera/image.jpg"/>
+            <img src="/image.jpg"/>
             </div>
             );
   }

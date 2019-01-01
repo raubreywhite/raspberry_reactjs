@@ -51961,17 +51961,17 @@ function (_Component) {
     value: function GetVerticalLineData() {
       return [{
         xval: this.state.timeNow,
-        yval: 4
+        yval: 5.5
       }, {
         xval: this.state.timeNow,
-        yval: 9
+        yval: 6.0
       }];
     }
   }, {
     key: "FetchData",
     value: function FetchData(fn) {
       var that = this;
-      fetch("/logs/ph.json").then(function (response) {
+      fetch(this.props.dataurl).then(function (response) {
         return response.json();
       }).then(function (data) {
         console.log(data); // [{"Hello": "world"}, …]
@@ -51982,7 +51982,7 @@ function (_Component) {
             time: parseTime(d.time),
             value: d.value
           };
-        }).slice(-75);
+        }).slice(that.props.datapoints);
         console.log(dataClean); // [{"Hello": "world"}, …]
 
         that.setState({
@@ -51998,12 +51998,12 @@ function (_Component) {
     value: function GraphInitialize() {
       var fullData = this.state.data.concat({
         time: this.state.timeNow,
-        value: 3
+        value: 5.75
       }); //console.log(fullData);
 
       var margin = {
         top: 20,
-        right: 20,
+        right: 50,
         bottom: 30,
         left: 50
       };
@@ -52014,14 +52014,20 @@ function (_Component) {
         return d.time;
       }))); //var y = d3.scaleLinear()
 
-      y.range([height, 0]).domain([4, 9]);
+      var yDom = d3.extent(fullData.map(function (d) {
+        return d.value;
+      }));
+      yDom[0] = yDom[0] - 0.25;
+      yDom[1] = yDom[1] + 0.25;
+      y.range([height, 0]).domain(yDom);
       var svg = d3.select(this.chartRef.current);
       svg.attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom);
       var graph = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")").attr("data-name", "graph"); // add the x Axis
 
       graph.append("g").attr("class", "x axis").attr("transform", "translate(0," + height + ")").call(d3.axisBottom(x)); // add the y Axis
 
-      graph.append("g").attr("class", "y axis").attr("transform", "translate(0, 0)").call(d3.axisLeft(y).ticks(5));
+      graph.append("g").attr("class", "y axis left").attr("transform", "translate(0, 0)").call(d3.axisLeft(y).ticks(5));
+      graph.append("g").attr("class", "y axis right").attr("transform", "translate(" + width + ",0)").call(d3.axisRight(y).ticks(5));
       lineValue.x(function (d) {
         return x(d.time);
       }).y(function (d) {
@@ -52033,8 +52039,15 @@ function (_Component) {
       }).y(function (d) {
         return y(d.yval);
       });
-      graph.append("path").data([this.state.data]).attr("class", "line").attr("data-name", "lineValue").attr("d", lineValue);
-      graph.selectAll("circle").data(this.state.data).enter().append("circle").attr("r", 4).attr("cx", function (d) {
+      /*
+      graph.append("path")
+      .data([this.state.data])
+      .attr("class", "line")
+      .attr("data-name", "lineValue")
+      .attr("d", lineValue);
+      */
+
+      graph.selectAll("circle").data(this.state.data).enter().append("circle").attr("r", 1).attr("cx", function (d) {
         return x(d.time);
       }).attr("cy", function (d) {
         return y(d.value);
@@ -52056,13 +52069,19 @@ function (_Component) {
       date1.setMinutes(date1.getMinutes() + 5);
       var fullData = this.state.data.concat({
         time: this.state.timeNow,
-        value: 3
+        value: 5.75
       }); //fullData = this.state.data.concat(date1);
 
       x.domain(d3.extent(fullData.map(function (d) {
         return d.time;
-      }))); //y.domain([0, 5]);
-
+      })));
+      var yDom = d3.extent(fullData.map(function (d) {
+        return d.value;
+      }));
+      yDom[0] = yDom[0] - 0.25;
+      yDom[1] = yDom[1] + 0.25;
+      console.log(yDom);
+      y.domain(yDom);
       var svg = d3.select(this.chartRef.current);
       /*
       svg.select("[data-name=lineValue]")
@@ -52075,17 +52094,19 @@ function (_Component) {
       var u = svg.select("[data-name=graph]").selectAll("circle").data(this.state.data, function (d) {
         return d;
       });
-      u.enter().append("circle").attr("r", 4).attr("cx", function (d) {
+      u.enter().append("circle").attr("r", 1).attr("cx", function (d) {
         return x(d.time);
       }).attr("cy", function (d) {
         return y(d.value);
-      }).merge(u).transition().duration(750).attr("r", 4).attr("cx", function (d) {
+      }).merge(u).transition().duration(750).attr("r", 1).attr("cx", function (d) {
         return x(d.time);
       }).attr("cy", function (d) {
         return y(d.value);
       });
       u.exit().remove();
       svg.select(".x.axis").transition().duration(750).call(d3.axisBottom(x));
+      svg.select(".y.axis.left").transition().duration(750).call(d3.axisLeft(y));
+      svg.select(".y.axis.right").transition().duration(750).call(d3.axisRight(y));
     }
   }, {
     key: "componentDidMount",
@@ -52179,19 +52200,39 @@ function (_Component) {
       name: props.name
     };
     return _this;
-  }
+  } //<LiveImage image={"/camera/image.jpg"} interval={10*60*1000} />
+
 
   _createClass(App, [{
     key: "render",
     value: function render() {
       var name = this.state.name;
-      return _react.default.createElement("div", null, _react.default.createElement("h2", null, "Hello!!!"), _react.default.createElement(_Log.default, {
-        width: 750,
-        height: 300
-      }), _react.default.createElement(_LiveImage.default, {
-        image: "/camera/image.jpg",
-        interval: 10 * 60 * 1000
-      }), _react.default.createElement("p", null, "I am ", name));
+      return _react.default.createElement("div", null, _react.default.createElement("h2", null, "1.750L water, 250ml acid!!!"), _react.default.createElement("p", null, "pH Short"), _react.default.createElement(_Log.default, {
+        width: 800,
+        height: 300,
+        datapoints: -720,
+        dataurl: "/logs/ph_short.json"
+      }), _react.default.createElement("br", null), _react.default.createElement("p", null, "pH long"), _react.default.createElement(_Log.default, {
+        width: 800,
+        height: 300,
+        datapoints: -480,
+        dataurl: "/logs/ph.json"
+      }), _react.default.createElement("br", null), _react.default.createElement("p", null, "pump run"), _react.default.createElement(_Log.default, {
+        width: 800,
+        height: 300,
+        datapoints: -480,
+        dataurl: "/logs/pump_run.json"
+      }), _react.default.createElement("br", null), _react.default.createElement("p", null, "pump"), _react.default.createElement(_Log.default, {
+        width: 800,
+        height: 300,
+        datapoints: -48,
+        dataurl: "/logs/pump.json"
+      }), _react.default.createElement("br", null), _react.default.createElement("p", null, "ph very long"), _react.default.createElement(_Log.default, {
+        width: 800,
+        height: 300,
+        datapoints: -5760,
+        dataurl: "/logs/ph.json"
+      }), _react.default.createElement("br", null), _react.default.createElement("p", null, "I am ", name));
     }
   }]);
 
@@ -52317,7 +52358,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51282" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50304" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
