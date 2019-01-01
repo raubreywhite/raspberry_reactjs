@@ -21,17 +21,17 @@ export default class App extends Component {
             <p>pH Short</p>
             <Log width={800} height={300} datapoints={-720} dataurl={"/logs/ph_short.json"} />
             <br/>
-            <p>pH long</p>
-            <Log width={800} height={300} datapoints={-480} dataurl={"/logs/ph.json"} />
+            <p>ph very long</p>
+            <Log width={800} height={300} datapoints={-5760} dataurl={"/logs/ph.json"}  />
             <br/>
             <p>pump run</p>
             <Log width={800} height={300} datapoints={-480} dataurl={"/logs/pump_run.json"}  />
             <br/>
-            <p>pump</p>
-            <Log width={800} height={300} datapoints={-48} dataurl={"/logs/pump.json"}  />
+            <p>pump acid</p>
+            <Log width={800} height={300} datapoints={-48} dataurl={"/logs/pumpAcid.json"}  />
             <br/>
-            <p>ph very long</p>
-            <Log width={800} height={300} datapoints={-5760} dataurl={"/logs/ph.json"}  />
+            <p>pump base</p>
+            <Log width={800} height={300} datapoints={-48} dataurl={"/logs/pumpBase.json"}  />
             <br/>
             
             <p>I am {name}</p>
