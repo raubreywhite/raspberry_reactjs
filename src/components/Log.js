@@ -1,9 +1,14 @@
 import React, {Component} from 'react';
 import * as d3 from 'd3';
 
-let x = d3.scaleTime();
-let y = d3.scaleLinear();
-let lineValue = d3.line();
+let xScale = d3.scaleTime();
+let yScale = d3.scaleLinear();let lineValue = d3.line();
+let xAxis = d3.axisBottom();
+let ylAxis = d3.axisLeft();
+let yrAxis = d3.axisRight();
+let margin = {top: 20, right: 50, bottom: 30, left: 50};
+
+
 let lineVertical = d3.line();
 
 class BarChart extends Component {
@@ -13,13 +18,17 @@ class BarChart extends Component {
     this.GetVerticalLineData = this.GetVerticalLineData.bind(this);
     this.FetchData = this.FetchData.bind(this);
     this.GraphInitialize = this.GraphInitialize.bind(this);
-    this.GraphUpdate = this.GraphUpdate.bind(this);
-    
+    this.GraphUpdate = this.GraphUpdate.bind(this);  
+    this.SetScale = this.SetScale.bind(this);
+  
     console.log("OK");
     
     this.state = {
       timeNow : new Date(),
       timer: null,
+      width : this.props.width - margin.left - margin.right,
+      height : this.props.height - margin.top - margin.bottom,
+
     };
     this.chartRef = React.createRef ();
   }
@@ -53,21 +62,10 @@ class BarChart extends Component {
                                });
                  });
   }
-  
-  GraphInitialize(){
-    
-    var fullData = this.state.data.concat(
-                                          {time: this.state.timeNow,
-                                          value: this.props.refl});
-    //console.log(fullData);
-    
-    var margin = {top: 20, right: 50, bottom: 30, left: 50};
-    const width = this.props.width - margin.left - margin.right;
-    const height = this.props.height - margin.top - margin.bottom;
-    
-    //var x = d3.scaleTime()
-    x.range([0, width])
-    .domain(d3.extent(fullData.map(function(d){
+
+  SetScale(fullData){
+    xScale.range([0, this.state.width])
+      .domain(d3.extent(fullData.map(function(d){
                                    return(d.time)
                                    })));
     
@@ -77,40 +75,62 @@ class BarChart extends Component {
                                       }));
     yDom[0]=yDom[0]-0.25;
     yDom[1]=yDom[1]+0.25;
-    y.range([height, 0])
-    .domain(yDom);
+    yScale.range([this.state.height, 0])
+      .domain(yDom);
+
+    xAxis.scale(xScale);
+    ylAxis.scale(yScale)
+    yrAxis.scale(yScale);
+
+  }
+  
+  GraphInitialize(){
+    console.log(1);
+    var fullData = this.state.data.concat(
+                                          {time: this.state.timeNow,
+                                          value: this.props.refl});
+
+    this.SetScale(fullData);
+    //console.log(fullData);
     
+    
+    //var x = d3.scaleTime()
+       
     const svg = d3.select(this.chartRef.current);
-    svg.attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom);
+    svg.attr("width", this.state.width + margin.left + margin.right)
+    .attr("height", this.state.height + margin.top + margin.bottom);
     var graph = svg.append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
     .attr("data-name","graph");
     
+console.log("OK1");
+console.log(this.xAxis);
+console.log("OK");
     // add the x Axis
     graph.append("g")
     .attr("class","x axis")
-    .attr("transform", "translate(0," + height + ")")
-    .call(d3.axisBottom(x));
+    .attr("transform", "translate(0," + this.state.height + ")")
+    .call(xAxis);
+
     
     // add the y Axis
     graph.append("g")
     .attr("class","y axis left")
     .attr("transform", "translate(0, 0)")
-    .call(d3.axisLeft(y).ticks(5));
+    .call(ylAxis);
     
     graph.append("g")
     .attr("class","y axis right")
-    .attr("transform", "translate(" + width + ",0)")
-    .call(d3.axisRight(y).ticks(5));
+    .attr("transform", "translate(" + this.state.width + ",0)")
+    .call(yrAxis);
     
     lineValue
-    .x(function(d) { return x(d.time);})
-    .y(function(d) {return y(d.value);});
+    .x(function(d) { return xScale(d.time);})
+    .y(function(d) {return yScale(d.value);});
     
     lineVertical
-    .x(function(d) { console.log(d); return x(d.xval);})
-    .y(function(d) {return y(d.yval);});
+    .x(function(d) { console.log(d); return xScale(d.xval);})
+    .y(function(d) {return yScale(d.yval);});
     
     /*
     graph.append("path")
@@ -124,8 +144,8 @@ class BarChart extends Component {
     .enter()
     .append("circle")
     .attr("r", 1)
-    .attr("cx", function(d) { return x(d.time); })
-    .attr("cy", function(d) { return y(d.value); });
+    .attr("cx", function(d) { return xScale(d.time); })
+    .attr("cy", function(d) { return yScale(d.value); });
     
     graph.append("path")
     .data([this.GetVerticalLineData()])
@@ -153,18 +173,7 @@ class BarChart extends Component {
                                           {time: this.state.timeNow,
                                           value: this.props.refl});
     //fullData = this.state.data.concat(date1);
-    
-    x.domain(d3.extent(fullData.map(function(d){
-                                   return(d.time)
-                                   })));
-    
-    var yDom = d3.extent(fullData.map(function(d){
-                                      return(d.value)
-                                      }));
-    yDom[0]=yDom[0]-0.25;
-    yDom[1]=yDom[1]+0.25;
-    console.log(yDom);
-    y.domain(yDom);
+    this.SetScale(fullData);
     
     const svg = d3.select(this.chartRef.current);
     /*
@@ -186,36 +195,37 @@ class BarChart extends Component {
     u.enter()
     .append("circle")
     .attr("r", 1)
-    .attr("cx", function(d) { return x(d.time); })
-    .attr("cy", function(d) { return y(d.value); })
+    .attr("cx", function(d) { return xScale(d.time); })
+    .attr("cy", function(d) { return yScale(d.value); })
     .merge(u)
     .transition()
     .duration(750)
     .attr("r", 1)
-    .attr("cx", function(d) { return x(d.time); })
-    .attr("cy", function(d) { return y(d.value); });
+    .attr("cx", function(d) { return xScale(d.time); })
+    .attr("cy", function(d) { return yScale(d.value); });
     
     u.exit().remove();
     
     svg.select(".x.axis")
     .transition()
     .duration(750)
-    .call(d3.axisBottom(x));
-    
+    .call(xAxis);
+   
     svg.select(".y.axis.left")
     .transition()
     .duration(750)
-    .call(d3.axisLeft(y));
+    .call(ylAxis);
     
     svg.select(".y.axis.right")
     .transition()
     .duration(750)
-    .call(d3.axisRight(y));
+    .call(yrAxis);
     
   }
   
   componentDidMount () {
     var that = this;
+console.log("x");
     that.FetchData(that.GraphInitialize);
     
     console.log("0");
@@ -230,7 +240,7 @@ class BarChart extends Component {
   }
   
   componentWillUnmount() {
-    this.clearInterval(this.state.timer);
+    clearInterval(this.state.timer);
   }
   
   render () {

@@ -24035,7 +24035,7 @@ function (_Component) {
     key: "render",
     value: function render() {
       return _react.default.createElement("div", null, _react.default.createElement("img", {
-        src: "/camera/image.jpg"
+        src: "/image.jpg"
       }));
     }
   }]);
@@ -51927,9 +51927,18 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-var x = d3.scaleTime();
-var y = d3.scaleLinear();
+var xScale = d3.scaleTime();
+var yScale = d3.scaleLinear();
 var lineValue = d3.line();
+var xAxis = d3.axisBottom();
+var ylAxis = d3.axisLeft();
+var yrAxis = d3.axisRight();
+var margin = {
+  top: 20,
+  right: 50,
+  bottom: 30,
+  left: 50
+};
 var lineVertical = d3.line();
 
 var BarChart =
@@ -51947,10 +51956,13 @@ function (_Component) {
     _this.FetchData = _this.FetchData.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     _this.GraphInitialize = _this.GraphInitialize.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     _this.GraphUpdate = _this.GraphUpdate.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.SetScale = _this.SetScale.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     console.log("OK");
     _this.state = {
       timeNow: new Date(),
-      timer: null
+      timer: null,
+      width: _this.props.width - margin.left - margin.right,
+      height: _this.props.height - margin.top - margin.bottom
     };
     _this.chartRef = _react.default.createRef();
     return _this;
@@ -51961,10 +51973,10 @@ function (_Component) {
     value: function GetVerticalLineData() {
       return [{
         xval: this.state.timeNow,
-        yval: 5.5
+        yval: this.props.refl
       }, {
         xval: this.state.timeNow,
-        yval: 6.0
+        yval: this.props.refu
       }];
     }
   }, {
@@ -51994,23 +52006,9 @@ function (_Component) {
       });
     }
   }, {
-    key: "GraphInitialize",
-    value: function GraphInitialize() {
-      var fullData = this.state.data.concat({
-        time: this.state.timeNow,
-        value: 5.75
-      }); //console.log(fullData);
-
-      var margin = {
-        top: 20,
-        right: 50,
-        bottom: 30,
-        left: 50
-      };
-      var width = this.props.width - margin.left - margin.right;
-      var height = this.props.height - margin.top - margin.bottom; //var x = d3.scaleTime()
-
-      x.range([0, width]).domain(d3.extent(fullData.map(function (d) {
+    key: "SetScale",
+    value: function SetScale(fullData) {
+      xScale.range([0, this.state.width]).domain(d3.extent(fullData.map(function (d) {
         return d.time;
       }))); //var y = d3.scaleLinear()
 
@@ -52019,25 +52017,43 @@ function (_Component) {
       }));
       yDom[0] = yDom[0] - 0.25;
       yDom[1] = yDom[1] + 0.25;
-      y.range([height, 0]).domain(yDom);
+      yScale.range([this.state.height, 0]).domain(yDom);
+      xAxis.scale(xScale);
+      ylAxis.scale(yScale);
+      yrAxis.scale(yScale);
+    }
+  }, {
+    key: "GraphInitialize",
+    value: function GraphInitialize() {
+      console.log(1);
+      var fullData = this.state.data.concat({
+        time: this.state.timeNow,
+        value: this.props.refl
+      });
+      this.SetScale(fullData); //console.log(fullData);
+      //var x = d3.scaleTime()
+
       var svg = d3.select(this.chartRef.current);
-      svg.attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom);
-      var graph = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")").attr("data-name", "graph"); // add the x Axis
+      svg.attr("width", this.state.width + margin.left + margin.right).attr("height", this.state.height + margin.top + margin.bottom);
+      var graph = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")").attr("data-name", "graph");
+      console.log("OK1");
+      console.log(this.xAxis);
+      console.log("OK"); // add the x Axis
 
-      graph.append("g").attr("class", "x axis").attr("transform", "translate(0," + height + ")").call(d3.axisBottom(x)); // add the y Axis
+      graph.append("g").attr("class", "x axis").attr("transform", "translate(0," + this.state.height + ")").call(xAxis); // add the y Axis
 
-      graph.append("g").attr("class", "y axis left").attr("transform", "translate(0, 0)").call(d3.axisLeft(y).ticks(5));
-      graph.append("g").attr("class", "y axis right").attr("transform", "translate(" + width + ",0)").call(d3.axisRight(y).ticks(5));
+      graph.append("g").attr("class", "y axis left").attr("transform", "translate(0, 0)").call(ylAxis);
+      graph.append("g").attr("class", "y axis right").attr("transform", "translate(" + this.state.width + ",0)").call(yrAxis);
       lineValue.x(function (d) {
-        return x(d.time);
+        return xScale(d.time);
       }).y(function (d) {
-        return y(d.value);
+        return yScale(d.value);
       });
       lineVertical.x(function (d) {
         console.log(d);
-        return x(d.xval);
+        return xScale(d.xval);
       }).y(function (d) {
-        return y(d.yval);
+        return yScale(d.yval);
       });
       /*
       graph.append("path")
@@ -52048,9 +52064,9 @@ function (_Component) {
       */
 
       graph.selectAll("circle").data(this.state.data).enter().append("circle").attr("r", 1).attr("cx", function (d) {
-        return x(d.time);
+        return xScale(d.time);
       }).attr("cy", function (d) {
-        return y(d.value);
+        return yScale(d.value);
       });
       graph.append("path").data([this.GetVerticalLineData()]).attr("class", "line").attr("data-name", "lineVertical").attr("d", lineVertical);
       /* graph.append("path")
@@ -52069,19 +52085,10 @@ function (_Component) {
       date1.setMinutes(date1.getMinutes() + 5);
       var fullData = this.state.data.concat({
         time: this.state.timeNow,
-        value: 5.75
+        value: this.props.refl
       }); //fullData = this.state.data.concat(date1);
 
-      x.domain(d3.extent(fullData.map(function (d) {
-        return d.time;
-      })));
-      var yDom = d3.extent(fullData.map(function (d) {
-        return d.value;
-      }));
-      yDom[0] = yDom[0] - 0.25;
-      yDom[1] = yDom[1] + 0.25;
-      console.log(yDom);
-      y.domain(yDom);
+      this.SetScale(fullData);
       var svg = d3.select(this.chartRef.current);
       /*
       svg.select("[data-name=lineValue]")
@@ -52095,23 +52102,24 @@ function (_Component) {
         return d;
       });
       u.enter().append("circle").attr("r", 1).attr("cx", function (d) {
-        return x(d.time);
+        return xScale(d.time);
       }).attr("cy", function (d) {
-        return y(d.value);
+        return yScale(d.value);
       }).merge(u).transition().duration(750).attr("r", 1).attr("cx", function (d) {
-        return x(d.time);
+        return xScale(d.time);
       }).attr("cy", function (d) {
-        return y(d.value);
+        return yScale(d.value);
       });
       u.exit().remove();
-      svg.select(".x.axis").transition().duration(750).call(d3.axisBottom(x));
-      svg.select(".y.axis.left").transition().duration(750).call(d3.axisLeft(y));
-      svg.select(".y.axis.right").transition().duration(750).call(d3.axisRight(y));
+      svg.select(".x.axis").transition().duration(750).call(xAxis);
+      svg.select(".y.axis.left").transition().duration(750).call(ylAxis);
+      svg.select(".y.axis.right").transition().duration(750).call(yrAxis);
     }
   }, {
     key: "componentDidMount",
     value: function componentDidMount() {
       var that = this;
+      console.log("x");
       that.FetchData(that.GraphInitialize);
       console.log("0");
       var timer = setInterval(function () {
@@ -52129,7 +52137,7 @@ function (_Component) {
   }, {
     key: "componentWillUnmount",
     value: function componentWillUnmount() {
-      this.clearInterval(this.state.timer);
+      clearInterval(this.state.timer);
     }
   }, {
     key: "render",
@@ -52207,32 +52215,35 @@ function (_Component) {
     key: "render",
     value: function render() {
       var name = this.state.name;
-      return _react.default.createElement("div", null, _react.default.createElement("h2", null, "1.750L water, 250ml acid!!!"), _react.default.createElement("p", null, "pH Short"), _react.default.createElement(_Log.default, {
-        width: 800,
-        height: 300,
-        datapoints: -720,
-        dataurl: "/logs/ph_short.json"
-      }), _react.default.createElement("br", null), _react.default.createElement("p", null, "pH long"), _react.default.createElement(_Log.default, {
-        width: 800,
-        height: 300,
-        datapoints: -480,
-        dataurl: "/logs/ph.json"
-      }), _react.default.createElement("br", null), _react.default.createElement("p", null, "pump run"), _react.default.createElement(_Log.default, {
-        width: 800,
-        height: 300,
-        datapoints: -480,
-        dataurl: "/logs/pump_run.json"
-      }), _react.default.createElement("br", null), _react.default.createElement("p", null, "pump"), _react.default.createElement(_Log.default, {
-        width: 800,
-        height: 300,
-        datapoints: -48,
-        dataurl: "/logs/pump.json"
-      }), _react.default.createElement("br", null), _react.default.createElement("p", null, "ph very long"), _react.default.createElement(_Log.default, {
+      return _react.default.createElement("div", null, _react.default.createElement("p", null, "ph"), _react.default.createElement(_Log.default, {
         width: 800,
         height: 300,
         datapoints: -5760,
-        dataurl: "/logs/ph.json"
-      }), _react.default.createElement("br", null), _react.default.createElement("p", null, "I am ", name));
+        dataurl: "/logs/ph.json",
+        refl: 5.5,
+        refu: 6.0
+      }), _react.default.createElement("br", null), _react.default.createElement("p", null, "pump run"), _react.default.createElement(_Log.default, {
+        width: 800,
+        height: 200,
+        datapoints: -480,
+        dataurl: "/logs/pump_run.json",
+        refl: 0,
+        refu: 1
+      }), _react.default.createElement("br", null), _react.default.createElement("p", null, "pump acid"), _react.default.createElement(_Log.default, {
+        width: 800,
+        height: 200,
+        datapoints: -48,
+        dataurl: "/logs/pumpAcid.json",
+        refl: 0,
+        refu: 1
+      }), _react.default.createElement("br", null), _react.default.createElement("p", null, "pump base"), _react.default.createElement(_Log.default, {
+        width: 800,
+        height: 200,
+        datapoints: -48,
+        dataurl: "/logs/pumpBase.json",
+        refl: 0,
+        refu: 1
+      }), _react.default.createElement("br", null), _react.default.createElement("p", null, "I am ", name), _react.default.createElement("h2", null, "1.750L water, 250ml acid!!!"));
     }
   }]);
 
@@ -52358,7 +52369,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50304" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51855" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
