@@ -25,8 +25,8 @@ class BarChart extends Component {
   }
   
   GetVerticalLineData(){
-    return([{xval: this.state.timeNow, yval:5.5},
-            {xval: this.state.timeNow, yval:6.0}]);
+    return([{xval: this.state.timeNow, yval:this.props.refl},
+            {xval: this.state.timeNow, yval:this.props.refu}]);
   }
   
   FetchData(fn){
