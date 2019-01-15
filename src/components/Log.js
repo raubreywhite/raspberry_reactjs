@@ -88,7 +88,9 @@ class BarChart extends Component {
     console.log(1);
     var fullData = this.state.data.concat(
                                           {time: this.state.timeNow,
-                                          value: this.props.refl});
+                                          value: this.props.refl}).concat(
+                                          {time: this.state.timeNow,
+                                          value: this.props.refu});
 
     this.SetScale(fullData);
     //console.log(fullData);
@@ -169,9 +171,13 @@ console.log("OK");
     console.log("UPDATING")
     var date1 = new Date();
     date1.setMinutes(date1.getMinutes()+5);
+
     var fullData = this.state.data.concat(
                                           {time: this.state.timeNow,
-                                          value: this.props.refl});
+                                          value: this.props.refl}).concat(
+                                          {time: this.state.timeNow,
+                                          value: this.props.refu});
+
     //fullData = this.state.data.concat(date1);
     this.SetScale(fullData);
     
